@@ -17,7 +17,6 @@ const AuthView = (function () {
   const goToForgotBtn = document.getElementById('goToForgotBtn');
   const backToLoginFromForgot = document.getElementById('backToLoginFromForgot');
   const backToLoginFromReset = document.getElementById('backToLoginFromReset');
-  const fillDemoLoginBtn = document.getElementById('fillDemoLoginBtn');
 
   function showForm(formEl, subtitle) {
     [loginForm, registerForm, forgotForm, resetForm].forEach(f => f.classList.remove('active'));
@@ -34,13 +33,6 @@ const AuthView = (function () {
     goToForgotBtn.onclick = () => showForm(forgotForm, 'Recover your account password');
     backToLoginFromForgot.onclick = () => showForm(loginForm, 'Sign in to organize your tasks effortlessly');
     backToLoginFromReset.onclick = () => showForm(loginForm, 'Sign in to organize your tasks effortlessly');
-
-    // Fill Demo Login credentials
-    fillDemoLoginBtn.onclick = () => {
-      document.getElementById('loginEmail').value = 'demo@taskflow.dev';
-      document.getElementById('loginPassword').value = 'DemoPassword123!';
-      Toast.info('Demo credentials populated. Click Sign In.');
-    };
 
     // 1. Handle Login
     loginForm.onsubmit = async (e) => {
