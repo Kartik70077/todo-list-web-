@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TaskFlow Pro — Modern Task Management</title>
+  
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Lucide Icons (CDN) -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <!-- Global App Wrapper -->
+  <div id="app" class="app-root">
+    
+    <!-- 1. Authentication View Container -->
+    <div id="authContainer" class="auth-wrapper" style="display: none;">
+      <div class="auth-card">
+        <div class="auth-header">
+          <div class="auth-brand-icon">
+            <i data-lucide="check-circle-2"></i>
+          </div>
+          <h1 class="auth-title">TaskFlow Pro</h1>
+          <p class="auth-subtitle" id="authSubtitle">Sign in to organize your tasks effortlessly</p>
+        </div>
+
+        <div class="auth-forms-container">
+          
+          <!-- LOGIN FORM -->
+          <form id="loginForm" class="auth-form active">
+            <div class="form-group">
+              <label for="loginEmail">Email</label>
+              <div class="input-with-icon">
+                <i data-lucide="mail"></i>
+                <input type="email" id="loginEmail" placeholder="you@company.com" required autocomplete="email" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div class="label-row">
+                <label for="loginPassword">Password</label>
+                <button type="button" class="btn-link text-sm" id="goToForgotBtn">Forgot?</button>
+              </div>
+              <div class="input-with-icon">
+                <i data-lucide="lock"></i>
+                <input type="password" id="loginPassword" placeholder="••••••••" required autocomplete="current-password" />
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block" id="loginSubmitBtn">
+              <span>Sign In</span>
+              <i data-lucide="arrow-right"></i>
+            </button>
+
+            <!-- Quick Demo Login button -->
+            <div class="demo-auth-box">
+              <button type="button" class="btn btn-secondary btn-block btn-sm" id="fillDemoLoginBtn">
+                <i data-lucide="zap"></i> Quick Fill Demo (Alex Morgan)
+              </button>
+            </div>
+
+            <div class="auth-switch">
+              Don't have an account? 
+              <button type="button" class="btn-link font-bold" id="goToRegisterBtn">Create account</button>
+            </div>
+          </form>
+
+          <!-- REGISTER FORM -->
+          <form id="registerForm" class="auth-form">
+            <div class="form-group">
+              <label for="regName">Full Name</label>
+              <div class="input-with-icon">
+                <i data-lucide="user"></i>
+                <input type="text" id="regName" placeholder="Alex Morgan" required autocomplete="name" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="regEmail">Email Address</label>
+              <div class="input-with-icon">
+                <i data-lucide="mail"></i>
+                <input type="email" id="regEmail" placeholder="alex@example.com" required autocomplete="email" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="regPassword">Password (min 8 chars)</label>
+              <div class="input-with-icon">
+                <i data-lucide="lock"></i>
+                <input type="password" id="regPassword" placeholder="••••••••" required minlength="8" autocomplete="new-password" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="regConfirmPassword">Confirm Password</label>
+              <div class="input-with-icon">
+                <i data-lucide="shield-check"></i>
+                <input type="password" id="regConfirmPassword" placeholder="••••••••" required minlength="8" autocomplete="new-password" />
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block" id="registerSubmitBtn">
+              <span>Create Account</span>
+              <i data-lucide="user-plus"></i>
+            </button>
+
+            <div class="auth-switch">
+              Already have an account? 
+              <button type="button" class="btn-link font-bold" id="goToLoginBtn">Sign in</button>
+            </div>
+          </form>
+
+          <!-- FORGOT PASSWORD FORM -->
+          <form id="forgotForm" class="auth-form">
+            <p class="auth-instruction">Enter your registered email address to generate a secure reset token.</p>
+            
+            <div class="form-group">
+              <label for="forgotEmail">Email Address</label>
+              <div class="input-with-icon">
+                <i data-lucide="mail"></i>
+                <input type="email" id="forgotEmail" placeholder="you@company.com" required />
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block" id="forgotSubmitBtn">
+              <span>Send Reset Token</span>
+              <i data-lucide="send"></i>
+            </button>
+
+            <div class="auth-switch">
+              <button type="button" class="btn-link font-bold" id="backToLoginFromForgot">Back to login</button>
+            </div>
+          </form>
+
+          <!-- RESET PASSWORD FORM -->
+          <form id="resetForm" class="auth-form">
+            <p class="auth-instruction">Enter your reset token and your new password.</p>
+            
+            <div class="form-group">
+              <label for="resetTokenInput">Reset Token</label>
+              <div class="input-with-icon">
+                <i data-lucide="key"></i>
+                <input type="text" id="resetTokenInput" placeholder="Paste reset token here" required />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="resetNewPassword">New Password (min 8 chars)</label>
+              <div class="input-with-icon">
+                <i data-lucide="lock"></i>
+                <input type="password" id="resetNewPassword" placeholder="••••••••" required minlength="8" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="resetConfirmPassword">Confirm New Password</label>
+              <div class="input-with-icon">
+                <i data-lucide="shield-check"></i>
+                <input type="password" id="resetConfirmPassword" placeholder="••••••••" required minlength="8" />
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block" id="resetSubmitBtn">
+              <span>Update Password</span>
+              <i data-lucide="check"></i>
+            </button>
+
+            <div class="auth-switch">
+              <button type="button" class="btn-link font-bold" id="backToLoginFromReset">Back to login</button>
+            </div>
+          </form>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Main Dashboard Application (Logged In) -->
+    <div id="mainAppContainer" class="main-dashboard-layout" style="display: none;">
+      
+      <!-- Mobile Backdrop -->
+      <div id="sidebarBackdrop" class="sidebar-backdrop"></div>
+
+      <!-- Navigation Sidebar -->
+      <aside id="appSidebar" class="app-sidebar">
+        <div class="sidebar-brand">
+          <div class="brand-badge">
+            <i data-lucide="check-circle-2"></i>
+          </div>
+          <div class="brand-text">
+            <h2>TaskFlow</h2>
+            <span class="badge-pro">PRO</span>
+          </div>
+          <button id="closeSidebarBtn" class="mobile-close-sidebar" aria-label="Close Sidebar">
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+
+        <!-- Quick Create Button with keyboard hint -->
+        <div class="sidebar-action">
+          <button id="quickCreateTaskBtn" class="btn btn-primary btn-block">
+            <span class="btn-left">
+              <i data-lucide="plus"></i>
+              <span>New Task</span>
+            </span>
+            <span class="kbd-shortcut">N</span>
+          </button>
+        </div>
+
+        <!-- Main Navigation Links -->
+        <nav class="sidebar-nav">
+          <div class="nav-section-label">OVERVIEW</div>
+          <ul class="nav-list">
+            <li>
+              <a href="#dashboard" class="nav-item active" data-view="dashboard">
+                <i data-lucide="layout-dashboard"></i>
+                <span>Dashboard</span>
+              </a>
+            </li>
+            <li>
+              <a href="#tasks" class="nav-item" data-view="tasks">
+                <i data-lucide="list-todo"></i>
+                <span>My Tasks</span>
+                <span class="nav-badge" id="navTasksCount">0</span>
+              </a>
+            </li>
+            <li>
+              <a href="#today" class="nav-item" data-view="today">
+                <i data-lucide="calendar-check"></i>
+                <span>Today</span>
+                <span class="nav-badge badge-warning" id="navTodayCount">0</span>
+              </a>
+            </li>
+            <li>
+              <a href="#upcoming" class="nav-item" data-view="upcoming">
+                <i data-lucide="calendar-days"></i>
+                <span>Upcoming</span>
+                <span class="nav-badge" id="navUpcomingCount">0</span>
+              </a>
+            </li>
+            <li>
+              <a href="#completed" class="nav-item" data-view="completed">
+                <i data-lucide="check-check"></i>
+                <span>Completed</span>
+                <span class="nav-badge badge-success" id="navCompletedCount">0</span>
+              </a>
+            </li>
+          </ul>
+
+          <div class="nav-section-label">ORGANIZATION</div>
+          <ul class="nav-list">
+            <li>
+              <a href="#categories" class="nav-item" data-view="categories">
+                <i data-lucide="folder"></i>
+                <span>Categories</span>
+              </a>
+            </li>
+            <li>
+              <a href="#tags" class="nav-item" data-view="tags">
+                <i data-lucide="tags"></i>
+                <span>Tags</span>
+              </a>
+            </li>
+          </ul>
+
+          <div class="nav-section-label">ACCOUNT</div>
+          <ul class="nav-list">
+            <li>
+              <a href="#settings" class="nav-item" data-view="settings">
+                <i data-lucide="user-cog"></i>
+                <span>Settings</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+
+        <!-- Sidebar User Footer -->
+        <div class="sidebar-footer">
+          <div class="user-mini-card">
+            <div class="user-avatar" id="sidebarUserAvatar">AM</div>
+            <div class="user-meta">
+              <span class="user-name" id="sidebarUserName">Alex Morgan</span>
+              <span class="user-email" id="sidebarUserEmail">alex@taskflow.dev</span>
+            </div>
+            <button id="logoutBtn" class="btn-icon" title="Log Out" aria-label="Log Out">
+              <i data-lucide="log-out"></i>
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main Content Area -->
+      <div class="main-content-wrapper">
+        
+        <!-- Top App Header -->
+        <header class="top-navbar">
+          <div class="top-nav-left">
+            <button id="openSidebarBtn" class="mobile-menu-btn" aria-label="Open Sidebar">
+              <i data-lucide="menu"></i>
+            </button>
+            <div class="page-title-wrap">
+              <h1 class="current-view-title" id="currentViewTitle">Dashboard</h1>
+              <p class="current-view-subtitle" id="currentViewSubtitle">Overview of your productivity and upcoming tasks</p>
+            </div>
+          </div>
+
+          <div class="top-nav-right">
+            <!-- Global Search Box with keyboard hint -->
+            <div class="global-search-box">
+              <i data-lucide="search"></i>
+              <input type="text" id="globalSearchInput" placeholder="Search tasks or tags..." />
+              <span class="search-shortcut-hint kbd-shortcut">Ctrl K</span>
+              <button id="clearGlobalSearchBtn" class="clear-input-btn" style="display: none;" aria-label="Clear search">
+                <i data-lucide="x"></i>
+              </button>
+            </div>
+
+            <!-- Theme Toggle -->
+            <button class="theme-toggle-btn" id="themeToggleBtn" title="Toggle Theme" aria-label="Toggle Theme">
+              <i data-lucide="moon" class="moon-icon"></i>
+              <i data-lucide="sun" class="sun-icon"></i>
+            </button>
+
+            <!-- User Menu Trigger -->
+            <button id="headerProfileBtn" class="header-profile-btn" title="View Settings" aria-label="User Settings">
+              <div class="user-avatar-sm" id="headerUserAvatar">AM</div>
+            </button>
+          </div>
+        </header>
+
+        <!-- Dynamic Main Content Container -->
+        <main id="viewContainer" class="view-container">
+          <!-- Views dynamically injected -->
+        </main>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Modals -->
+
+  <!-- 1. Task Modal (Create & Edit) -->
+  <div class="modal-backdrop" id="taskModal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="taskModalTitle">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <i data-lucide="check-square" class="modal-icon"></i>
+          <h2 id="taskModalTitle">New Task</h2>
+        </div>
+        <button class="modal-close-btn" id="closeTaskModalBtn" aria-label="Close dialog">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+
+      <form id="taskForm" class="modal-body">
+        <input type="hidden" id="taskFormId" />
+        
+        <div class="form-group">
+          <label for="taskFormTitle">Title <span class="required-star">*</span></label>
+          <input type="text" id="taskFormTitle" placeholder="e.g. Prepare system design proposal" required autocomplete="off" />
+        </div>
+
+        <div class="form-group">
+          <label for="taskFormDescription">Description</label>
+          <textarea id="taskFormDescription" rows="3" placeholder="Add notes, specifications, or reference links..."></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="taskFormPriority"><i data-lucide="flag"></i> Priority</label>
+            <select id="taskFormPriority">
+              <option value="low">🟢 Low</option>
+              <option value="medium" selected>🟡 Medium</option>
+              <option value="high">🔴 High</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="taskFormStatus"><i data-lucide="activity"></i> Status</label>
+            <select id="taskFormStatus">
+              <option value="pending" selected>Pending</option>
+              <option value="in_progress">In Progress</option>
+              <option value="completed">Completed</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="taskFormCategory"><i data-lucide="folder"></i> Category</label>
+            <select id="taskFormCategory">
+              <option value="">No Category</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="taskFormDueDate"><i data-lucide="calendar"></i> Due Date</label>
+            <input type="date" id="taskFormDueDate" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label><i data-lucide="tags"></i> Tags</label>
+          <div class="tag-selector-wrap" id="taskFormTagCheckboxes"></div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="cancelTaskModalBtn">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="saveTaskModalBtn">
+            <i data-lucide="save"></i>
+            <span>Save Task</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. Delete Confirmation Modal -->
+  <div class="modal-backdrop" id="deleteConfirmModal" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="modal-dialog modal-dialog-sm">
+      <div class="modal-header">
+        <div class="modal-title-wrap text-danger">
+          <i data-lucide="alert-triangle"></i>
+          <h2>Confirm Deletion</h2>
+        </div>
+        <button class="modal-close-btn" id="closeDeleteModalBtn" aria-label="Close dialog">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p id="deleteConfirmMessage">Are you sure you want to delete this item? This action cannot be undone.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="cancelDeleteBtn">Cancel</button>
+        <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+          <i data-lucide="trash-2"></i>
+          <span>Delete</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Category Modal -->
+  <div class="modal-backdrop" id="categoryModal" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="modal-dialog modal-dialog-sm">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <i data-lucide="folder-plus"></i>
+          <h2 id="categoryModalTitle">Add Category</h2>
+        </div>
+        <button class="modal-close-btn" id="closeCategoryModalBtn" aria-label="Close dialog">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <form id="categoryForm" class="modal-body">
+        <input type="hidden" id="categoryFormId" />
+        <div class="form-group">
+          <label for="categoryFormName">Category Name <span class="required-star">*</span></label>
+          <input type="text" id="categoryFormName" placeholder="e.g. Engineering" required />
+        </div>
+        <div class="form-group">
+          <label for="categoryFormColor">Color</label>
+          <div class="color-picker-row">
+            <input type="color" id="categoryFormColor" value="#4f46e5" />
+            <span class="color-hex-text" id="categoryColorHex">#4f46e5</span>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="cancelCategoryModalBtn">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="saveCategoryModalBtn">Save Category</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 4. Tag Modal -->
+  <div class="modal-backdrop" id="tagModal" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="modal-dialog modal-dialog-sm">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <i data-lucide="tag"></i>
+          <h2 id="tagModalTitle">Add Tag</h2>
+        </div>
+        <button class="modal-close-btn" id="closeTagModalBtn" aria-label="Close dialog">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <form id="tagForm" class="modal-body">
+        <div class="form-group">
+          <label for="tagFormName">Tag Name <span class="required-star">*</span></label>
+          <input type="text" id="tagFormName" placeholder="e.g. frontend" required />
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="cancelTagModalBtn">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="saveTagModalBtn">Save Tag</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+  <!-- Scripts -->
+  <script src="js/api.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/components/toast.js"></script>
+  <script src="js/components/modal.js"></script>
+  <script src="js/views/authView.js"></script>
+  <script src="js/views/dashboardView.js"></script>
+  <script src="js/views/tasksView.js"></script>
+  <script src="js/views/categoriesView.js"></script>
+  <script src="js/views/tagsView.js"></script>
+  <script src="js/views/profileView.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
