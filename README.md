@@ -1,154 +1,97 @@
-# 🚀 TaskFlow Pro — Production-Quality Full-Stack Todo Application
+# 🚀 TaskFlow Pro — Premium Modern Frontend Todo Application
 
-**TaskFlow Pro** is a complete, production-ready, full-stack task management web application built from scratch with a clean Node.js + Express backend, persistent SQLite database (`node:sqlite`), robust authentication & user isolation, and a modern, responsive Single Page Application (SPA) frontend.
+**TaskFlow Pro** is a modern, responsive, and standalone task management web application built with clean HTML5, modern CSS3, and Vanilla JavaScript (ES6+).
+
+It features a premium productivity design inspired by Linear, Raycast, and Things 3, with complete **`localStorage` auto-persistence** — making it **100% ready for 1-click static deployment on Vercel**, Netlify, or GitHub Pages with zero backend or database setup required!
+
+---
+
+## 🌐 Live Demo & Deployment on Vercel
+
+To deploy your own live version on Vercel in 60 seconds:
+
+1. Go to **[vercel.com](https://vercel.com)** and log in with your GitHub account.
+2. Click **"Add New..."** → **"Project"**.
+3. Select this repository (**`Kartik70077/todo-list-web-`**).
+4. Click **"Deploy"** (Keep default settings: Root `./`, Framework *Other*).
+5. Done! Your site is live with a public URL!
 
 ---
 
 ## ✨ Features
 
-- 🔐 **Authentication & Security**:
-  - Secure registration & login with salted `scrypt` password hashing
-  - JWT session token authentication with protected routes & auto-expiry handling
-  - Password recovery flow with expiring single-use reset tokens
-  - User profile management & password change
-  - **Strict User Data Isolation**: Every database query is scoped to the authenticated user ID (`WHERE user_id = ?`)
-- 📝 **Full Todo Management**:
-  - Create, Read, Update, Delete (CRUD) tasks with validation
-  - Task status tracking (*Pending*, *In Progress*, *Completed*)
+- 💎 **Premium UI/UX**:
+  - Restrained, productivity-focused design system with Dark Mode and Light Mode
+  - High-density, tactile task rows with completion checkboxes
+  - Keyboard shortcuts:
+    - <kbd>Ctrl</kbd> + <kbd>K</kbd> / <kbd>Cmd</kbd> + <kbd>K</kbd> — Focus global search
+    - <kbd>N</kbd> — Quick task creation dialog
+    - <kbd>Esc</kbd> — Close modals and dialogs
+- 📝 **Task Management (Full CRUD)**:
+  - Create, edit, complete/restore, and delete tasks
+  - Statuses (*Pending*, *In Progress*, *Completed*)
   - Priority levels (*High* 🔴, *Medium* 🟡, *Low* 🟢)
-  - Due dates with overdue and due-today highlighting
-  - Multi-tagging support (relational many-to-many `todo_tags`)
-  - Category organization with custom color pickers
-  - 1-click completion toggle with `completed_at` timestamps
-- 🔍 **Search, Filters & Sorting**:
-  - Real-time search across titles, descriptions, and tags (`Ctrl+K` shortcut)
-  - Combinable filters: Status + Priority + Category + Tag + Due date
-  - Sorting: Newest, Oldest, Due Date, Priority (High to Low), Alphabetical (A-Z)
-- 📊 **Productivity Views & Dashboard**:
-  - **Dashboard**: Real-time aggregated database statistics, completion rates, priority distribution, and category activity
-  - **My Tasks**: Main tasks manager with multi-filter toolbar
+  - Due date tracking with automatic Overdue and Due-Today highlighting
+  - Multi-tagging support (`#urgent`, `#project`, `#client`, etc.)
+  - Category organization with custom color picker
+- 🔍 **Filtering, Search & Sorting**:
+  - Instant live search across task titles, descriptions, and tags
+  - Segmented status tabs (*All*, *Pending*, *In Progress*, *Completed*)
+  - Combinable filters (Priority + Category + Tags)
+  - Sorting: Newest, Oldest, Due Date, Priority, Alphabetical
+- 📊 **Productivity Views**:
+  - **Dashboard**: Real-time calculated task completion stats, priority distribution, and category progress
+  - **My Tasks**: Main tasks workspace with multi-filter toolbar
   - **Today View**: Dedicated focus on tasks due today and overdue tasks
   - **Upcoming View**: Grouped by Tomorrow, This Week, and Later
-  - **Completed View**: Archive with 1-click restore or permanent delete
-  - **Categories Manager**: Create, edit colors/names, delete with automatic reassignment
-  - **Tags Manager**: Create and delete tags with live task count indicators
-- 📱 **Responsive UI/UX**:
-  - Desktop, tablet, and mobile optimized with collapsible off-canvas drawer
-  - Dark Mode and Light Mode with system preference detection and `localStorage` memory
-  - Accessible modal dialogs with keyboard trap (Escape key, outside click)
-  - Non-intrusive toast notifications for feedback
+  - **Completed View**: Archive with 1-click restore or delete
+  - **Categories & Tags**: Dedicated management views with live task counters
+- 💾 **Zero-Backend Persistence**:
+  - Auto-persists all tasks, categories, tags, profile info, and theme choices directly in browser `localStorage`.
+- 📱 **Fully Responsive**:
+  - Fluid mobile drawer with touch backdrop and 44px+ touch targets.
 
 ---
 
-## 🛠️ Technology Stack
+## 📁 Project Structure
 
-| Layer | Technology |
-|---|---|
-| **Backend Runtime** | Node.js (v24 LTS) |
-| **Server Framework** | Express.js |
-| **Database** | SQLite (using Node's built-in `node:sqlite` DatabaseSync with WAL mode & foreign keys) |
-| **Authentication** | Cryptographic salted `scrypt` hashing & HMAC-SHA256 JWT tokens |
-| **Frontend** | Vanilla JavaScript (ES6+), HTML5 Semantic SPA, CSS3 Custom Properties |
-| **Icons & Fonts** | Lucide Icons, Google Font Plus Jakarta Sans |
-| **Testing** | Node.js automated test runner (`tests/run_all.js`) |
+```
+todo list/
+├── index.html               # Main SPA entry point and accessible modal dialogs
+├── css/
+│   └── style.css            # Design system, theme custom properties, responsive rules
+├── js/
+│   ├── api.js               # Client-side storage service (localStorage CRUD & stats engine)
+│   ├── state.js             # Central reactive application state
+│   ├── components/
+│   │   ├── modal.js         # Accessible modal dialog controller
+│   │   └── toast.js         # Toast notification component
+│   ├── views/
+│   │   ├── authView.js      # Sign-in & account views
+│   │   ├── dashboardView.js # Overview metrics & progress charts
+│   │   ├── tasksView.js     # Task lists, Today, Upcoming, and Completed views
+│   │   ├── categoriesView.js# Category management view
+│   │   ├── tagsView.js      # Tag management view
+│   │   └── profileView.js   # User profile settings
+│   └── app.js               # Main router and keyboard shortcut coordinator
+├── vercel.json              # Vercel deployment configuration
+└── README.md                # Project documentation
+```
 
 ---
 
-## ⚡ Quick Start & Running
+## 🛠️ Local Development
 
-### 1. Install Dependencies
+### Option 1: Open in Browser
+Simply double-click `index.html` or open it with Live Server.
+
+### Option 2: Run with Python HTTP Server
 ```powershell
-npm install
+python -m http.server 5000
 ```
+Then visit `http://localhost:5000`.
 
-### 2. Seed Demo Data (Optional)
-To populate the database with realistic sample categories, tags, and tasks:
+### Option 3: Run with Node.js
 ```powershell
-npm run seed
+node server.js
 ```
-
-**Development Demo Account Credentials:**
-- **Email**: `demo@taskflow.dev`
-- **Password**: `DemoPassword123!`
-
-### 3. Start the Application Server
-```powershell
-npm start
-```
-The server will start at **[http://localhost:5000](http://localhost:5000)**.
-
----
-
-## 🧪 Automated Testing
-
-TaskFlow Pro includes a comprehensive automated test suite testing:
-1. **Authentication**: Registration, password strength, duplicate emails, login, JWT authorization, protected routes, and forgot/reset password flow.
-2. **Todo CRUD & Filters**: Create, read, update, complete/restore, delete, combinable filters, search, and sorting.
-3. **Multi-User Data Isolation**: Verifies that User A's data cannot be read, updated, toggled, or deleted by User B.
-4. **Categories, Tags & Stats**: Category CRUD, Tag CRUD, and real-time database metric aggregations.
-
-Run the test suite:
-```powershell
-npm test
-```
-
----
-
-## 📡 API Endpoints Overview
-
-### Authentication (`/api/auth`)
-- `POST /api/auth/register` — Register new user
-- `POST /api/auth/login` — Login & receive JWT
-- `GET /api/auth/me` — Fetch authenticated user profile
-- `POST /api/auth/forgot-password` — Generate expiring password reset token
-- `POST /api/auth/reset-password` — Set new password using reset token
-
-### Todos (`/api/todos`)
-- `GET /api/todos` — List todos (supports `?status=&priority=&categoryId=&tagId=&due=&search=&sortBy=`)
-- `POST /api/todos` — Create todo
-- `GET /api/todos/:id` — Get single todo by ID
-- `PUT /api/todos/:id` — Update todo details
-- `PATCH /api/todos/:id/toggle` — Toggle completion status
-- `DELETE /api/todos/:id` — Delete todo
-
-### Categories (`/api/categories`)
-- `GET /api/categories` — List user's categories with task counts
-- `POST /api/categories` — Create category
-- `PUT /api/categories/:id` — Update category name/color
-- `DELETE /api/categories/:id` — Delete category
-
-### Tags (`/api/tags`)
-- `GET /api/tags` — List user's tags with task counts
-- `POST /api/tags` — Create tag
-- `DELETE /api/tags/:id` — Delete tag
-
-### Statistics (`/api/stats`)
-- `GET /api/stats` — Get real-time aggregated user stats
-
-### User Profile (`/api/users`)
-- `GET /api/users/profile` — Get profile info
-- `PUT /api/users/profile` — Update user name
-- `POST /api/users/change-password` — Change password with current password check
-
----
-
-## 🗄️ Database Architecture
-
-```
-users (id, name, email, password_hash, created_at, updated_at)
-  ├── categories (id, user_id, name, color, created_at, updated_at)
-  ├── tags (id, user_id, name, created_at)
-  ├── todos (id, user_id, category_id, title, description, status, priority, due_date, completed_at, created_at, updated_at)
-  │     └── todo_tags (todo_id, tag_id) [Many-to-Many]
-  └── password_reset_tokens (id, user_id, token_hash, expires_at, used, created_at)
-```
-
----
-
-## 🔒 Security Measures Implemented
-
-- **Password Security**: High-iteration `scrypt` hashing with unique per-user cryptographically random 16-byte salt and constant-time comparison (`crypto.timingSafeEqual`).
-- **SQL Injection Prevention**: 100% of database queries use parameterized prepared statements.
-- **Strict Data Isolation**: Every resource query is scoped with `WHERE user_id = ?`.
-- **Session Expiry**: JWT tokens expire after 7 days; password reset tokens expire after 1 hour and are single-use.
-- **Account Enumeration Defense**: Generic responses for forgot password requests.
