@@ -1,44 +1,47 @@
 /**
  * TaskFlow Pro - Client-Side Storage & API Service (Pure Frontend / Vercel Ready)
- * Persists all tasks, categories, tags, profile, and stats in browser localStorage.
+ * Provides real multi-user authentication, validation, session management, and per-user data persistence in localStorage.
  */
 
 const API = (function () {
-  const STORAGE_KEY_TASKS = 'taskflow_pro_tasks_v2';
-  const STORAGE_KEY_CATEGORIES = 'taskflow_pro_categories_v2';
-  const STORAGE_KEY_TAGS = 'taskflow_pro_tags_v2';
-  const STORAGE_KEY_USER = 'taskflow_pro_user_v2';
-  const STORAGE_KEY_TOKEN = 'taskflow_pro_token_v2';
+  const STORAGE_KEY_USERS = 'taskflow_users_db_v3';
+  const STORAGE_KEY_CURRENT_USER = 'taskflow_current_user_v3';
+  const STORAGE_KEY_TOKEN = 'taskflow_session_token_v3';
+  const STORAGE_KEY_TASKS = 'taskflow_tasks_v3';
+  const STORAGE_KEY_CATEGORIES = 'taskflow_categories_v3';
+  const STORAGE_KEY_TAGS = 'taskflow_tags_v3';
+  const STORAGE_KEY_RESET_TOKENS = 'taskflow_reset_tokens_v3';
 
-  // Default Seed Data
-  const DEFAULT_USER = {
+  // Demo User Seed (stored in users database)
+  const DEMO_USER = {
     id: 'usr_demo_123',
     name: 'Alex Morgan',
     email: 'demo@taskflow.dev',
+    password: 'DemoPassword123!',
     created_at: Date.now() - 30 * 86400000
   };
 
   const DEFAULT_CATEGORIES = [
-    { id: 'cat_1', name: 'Work', color: '#0284c7', created_at: Date.now() - 20 * 86400000 },
-    { id: 'cat_2', name: 'Personal', color: '#16a34a', created_at: Date.now() - 20 * 86400000 },
-    { id: 'cat_3', name: 'Study', color: '#7c3aed', created_at: Date.now() - 20 * 86400000 },
-    { id: 'cat_4', name: 'Health', color: '#db2777', created_at: Date.now() - 20 * 86400000 },
-    { id: 'cat_5', name: 'Shopping', color: '#ea580c', created_at: Date.now() - 20 * 86400000 }
+    { id: 'cat_1', user_id: 'usr_demo_123', name: 'Work', color: '#0284c7', created_at: Date.now() - 20 * 86400000 },
+    { id: 'cat_2', user_id: 'usr_demo_123', name: 'Personal', color: '#16a34a', created_at: Date.now() - 20 * 86400000 },
+    { id: 'cat_3', user_id: 'usr_demo_123', name: 'Study', color: '#7c3aed', created_at: Date.now() - 20 * 86400000 },
+    { id: 'cat_4', user_id: 'usr_demo_123', name: 'Health', color: '#db2777', created_at: Date.now() - 20 * 86400000 },
+    { id: 'cat_5', user_id: 'usr_demo_123', name: 'Shopping', color: '#ea580c', created_at: Date.now() - 20 * 86400000 }
   ];
 
   const DEFAULT_TAGS = [
-    { id: 'tag_1', name: 'urgent', created_at: Date.now() - 20 * 86400000 },
-    { id: 'tag_2', name: 'client', created_at: Date.now() - 20 * 86400000 },
-    { id: 'tag_3', name: 'project', created_at: Date.now() - 20 * 86400000 },
-    { id: 'tag_4', name: 'bug', created_at: Date.now() - 20 * 86400000 },
-    { id: 'tag_5', name: 'routine', created_at: Date.now() - 20 * 86400000 }
+    { id: 'tag_1', user_id: 'usr_demo_123', name: 'urgent', created_at: Date.now() - 20 * 86400000 },
+    { id: 'tag_2', user_id: 'usr_demo_123', name: 'client', created_at: Date.now() - 20 * 86400000 },
+    { id: 'tag_3', user_id: 'usr_demo_123', name: 'project', created_at: Date.now() - 20 * 86400000 },
+    { id: 'tag_4', user_id: 'usr_demo_123', name: 'bug', created_at: Date.now() - 20 * 86400000 },
+    { id: 'tag_5', user_id: 'usr_demo_123', name: 'routine', created_at: Date.now() - 20 * 86400000 }
   ];
 
   function getFormatYMD(d) {
     return d.toISOString().split('T')[0];
   }
 
-  function getInitialTasks() {
+  function getInitialDemoTasks(userId) {
     const today = new Date();
     const yesterday = new Date(today.getTime() - 86400000);
     const tomorrow = new Date(today.getTime() + 86400000);
@@ -47,6 +50,7 @@ const API = (function () {
     return [
       {
         id: 'tdo_1',
+        user_id: userId,
         title: 'Review executive presentation slides and system roadmap',
         description: 'Prepare talking points on quarterly infrastructure scaling.',
         status: 'pending',
@@ -62,6 +66,7 @@ const API = (function () {
       },
       {
         id: 'tdo_2',
+        user_id: userId,
         title: 'Fix responsive navigation layout on mobile viewports',
         description: 'Ensure touch targets and dropdown menus collapse smoothly.',
         status: 'in_progress',
@@ -77,6 +82,7 @@ const API = (function () {
       },
       {
         id: 'tdo_3',
+        user_id: userId,
         title: 'Submit quarterly health insurance receipts',
         description: 'Upload pharmacy claim receipts to portal.',
         status: 'pending',
@@ -92,6 +98,7 @@ const API = (function () {
       },
       {
         id: 'tdo_4',
+        user_id: userId,
         title: 'Complete Chapter 4 of System Design Architecture',
         description: 'Focus on distributed consensus, Raft, and data replication.',
         status: 'in_progress',
@@ -107,6 +114,7 @@ const API = (function () {
       },
       {
         id: 'tdo_5',
+        user_id: userId,
         title: 'Buy groceries: espresso beans, almond milk, organic oats',
         description: 'Stop by local market on Saturday.',
         status: 'pending',
@@ -122,6 +130,7 @@ const API = (function () {
       },
       {
         id: 'tdo_6',
+        user_id: userId,
         title: 'Setup automated CI/CD pipeline and static deployment',
         description: 'Configured automated tests and deployment workflow.',
         status: 'completed',
@@ -138,7 +147,7 @@ const API = (function () {
     ];
   }
 
-  // LocalStorage Helpers
+  // Storage Helpers
   function load(key, defaultVal) {
     try {
       const data = localStorage.getItem(key);
@@ -156,24 +165,16 @@ const API = (function () {
     }
   }
 
-  // Initialize store if empty
-  if (!localStorage.getItem(STORAGE_KEY_CATEGORIES)) {
+  // Initialize users database with Demo user if empty
+  const existingUsers = load(STORAGE_KEY_USERS, null);
+  if (!existingUsers || existingUsers.length === 0) {
+    save(STORAGE_KEY_USERS, [DEMO_USER]);
     save(STORAGE_KEY_CATEGORIES, DEFAULT_CATEGORIES);
-  }
-  if (!localStorage.getItem(STORAGE_KEY_TAGS)) {
     save(STORAGE_KEY_TAGS, DEFAULT_TAGS);
-  }
-  if (!localStorage.getItem(STORAGE_KEY_TASKS)) {
-    save(STORAGE_KEY_TASKS, getInitialTasks());
-  }
-  if (!localStorage.getItem(STORAGE_KEY_USER)) {
-    save(STORAGE_KEY_USER, DEFAULT_USER);
-  }
-  if (!localStorage.getItem(STORAGE_KEY_TOKEN)) {
-    save(STORAGE_KEY_TOKEN, 'local_jwt_session_token_alex_morgan');
+    save(STORAGE_KEY_TASKS, getInitialDemoTasks(DEMO_USER.id));
   }
 
-  // Token management
+  // Session Token management (Starts empty for fresh visitors!)
   function getToken() {
     return localStorage.getItem(STORAGE_KEY_TOKEN);
   }
@@ -183,19 +184,43 @@ const API = (function () {
       localStorage.setItem(STORAGE_KEY_TOKEN, token);
     } else {
       localStorage.removeItem(STORAGE_KEY_TOKEN);
+      localStorage.removeItem(STORAGE_KEY_CURRENT_USER);
     }
   }
 
-  // In-Memory operations simulating REST API endpoints
-  function handleGet(endpoint, params) {
-    const categories = load(STORAGE_KEY_CATEGORIES, DEFAULT_CATEGORIES);
-    const tags = load(STORAGE_KEY_TAGS, DEFAULT_TAGS);
-    const tasks = load(STORAGE_KEY_TASKS, []);
-    const user = load(STORAGE_KEY_USER, DEFAULT_USER);
+  function getCurrentUser() {
+    return load(STORAGE_KEY_CURRENT_USER, null);
+  }
 
+  function requireAuth() {
+    const user = getCurrentUser();
+    const token = getToken();
+    if (!token || !user) {
+      setToken(null);
+      const err = new Error('Authentication required. Please sign in.');
+      err.status = 401;
+      throw err;
+    }
+    return user;
+  }
+
+  // In-Memory operations simulating REST API endpoints with full validation
+  function handleGet(endpoint, params) {
     // /auth/me
-    if (endpoint === '/auth/me' || endpoint === '/users/profile') {
-      return { success: true, user };
+    if (endpoint === '/auth/me') {
+      const user = requireAuth();
+      return { success: true, user: { id: user.id, name: user.name, email: user.email, created_at: user.created_at } };
+    }
+
+    const user = requireAuth();
+    const categories = load(STORAGE_KEY_CATEGORIES, []).filter(c => c.user_id === user.id);
+    const tags = load(STORAGE_KEY_TAGS, []).filter(tg => tg.user_id === user.id);
+    const allTasks = load(STORAGE_KEY_TASKS, []);
+    const tasks = allTasks.filter(t => t.user_id === user.id);
+
+    // /users/profile
+    if (endpoint === '/users/profile') {
+      return { success: true, user: { id: user.id, name: user.name, email: user.email, created_at: user.created_at } };
     }
 
     // /categories
@@ -318,86 +343,287 @@ const API = (function () {
   }
 
   function handlePost(endpoint, body = {}) {
-    const categories = load(STORAGE_KEY_CATEGORIES, DEFAULT_CATEGORIES);
-    const tags = load(STORAGE_KEY_TAGS, DEFAULT_TAGS);
-    const tasks = load(STORAGE_KEY_TASKS, []);
+    const users = load(STORAGE_KEY_USERS, [DEMO_USER]);
 
-    // /auth/login
+    // 1. /auth/login with strict validation
     if (endpoint === '/auth/login') {
-      const user = load(STORAGE_KEY_USER, DEFAULT_USER);
-      const token = 'session_' + Date.now();
+      const email = (body.email || '').trim().toLowerCase();
+      const password = body.password || '';
+
+      if (!email || !password) {
+        const err = new Error('Email and password are required.');
+        err.status = 400;
+        throw err;
+      }
+
+      const user = users.find(u => u.email.toLowerCase() === email && u.password === password);
+      if (!user) {
+        const err = new Error('Invalid email or password.');
+        err.status = 401;
+        throw err;
+      }
+
+      const safeUser = { id: user.id, name: user.name, email: user.email, created_at: user.created_at };
+      const token = 'jwt_token_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8);
+      
+      save(STORAGE_KEY_CURRENT_USER, safeUser);
       setToken(token);
-      return { success: true, message: 'Login successful', token, user };
+
+      return { success: true, message: 'Login successful!', token, user: safeUser };
     }
 
-    // /auth/register
+    // 2. /auth/register with strict validation
     if (endpoint === '/auth/register') {
-      const user = {
-        id: 'usr_' + Date.now(),
-        name: body.name || 'Alex Morgan',
-        email: body.email || 'user@taskflow.dev',
+      const name = (body.name || '').trim();
+      const email = (body.email || '').trim().toLowerCase();
+      const password = body.password || '';
+      const confirmPassword = body.confirmPassword || '';
+
+      if (!name || name.length < 2) {
+        const err = new Error('Name must be at least 2 characters long.');
+        err.status = 400;
+        throw err;
+      }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!email || !emailRegex.test(email)) {
+        const err = new Error('Please enter a valid email address.');
+        err.status = 400;
+        throw err;
+      }
+
+      if (!password || password.length < 8) {
+        const err = new Error('Password must be at least 8 characters long.');
+        err.status = 400;
+        throw err;
+      }
+
+      if (password !== confirmPassword) {
+        const err = new Error('Password confirmation does not match.');
+        err.status = 400;
+        throw err;
+      }
+
+      // Check duplicate email
+      if (users.some(u => u.email.toLowerCase() === email)) {
+        const err = new Error('An account with this email already exists.');
+        err.status = 409;
+        throw err;
+      }
+
+      const newUserId = 'usr_' + Date.now();
+      const newUser = {
+        id: newUserId,
+        name,
+        email,
+        password,
         created_at: Date.now()
       };
-      save(STORAGE_KEY_USER, user);
-      const token = 'session_' + Date.now();
+
+      users.push(newUser);
+      save(STORAGE_KEY_USERS, users);
+
+      // Create default categories for the new user
+      const categories = load(STORAGE_KEY_CATEGORIES, []);
+      const userCategories = [
+        { id: 'cat_' + Date.now() + '_1', user_id: newUserId, name: 'Work', color: '#0284c7', created_at: Date.now() },
+        { id: 'cat_' + Date.now() + '_2', user_id: newUserId, name: 'Personal', color: '#16a34a', created_at: Date.now() },
+        { id: 'cat_' + Date.now() + '_3', user_id: newUserId, name: 'General', color: '#4f46e5', created_at: Date.now() }
+      ];
+      categories.push(...userCategories);
+      save(STORAGE_KEY_CATEGORIES, categories);
+
+      const safeUser = { id: newUser.id, name: newUser.name, email: newUser.email, created_at: newUser.created_at };
+      const token = 'jwt_token_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8);
+
+      save(STORAGE_KEY_CURRENT_USER, safeUser);
       setToken(token);
-      return { success: true, message: 'Account created', token, user };
+
+      return { success: true, message: 'Account created successfully!', token, user: safeUser };
     }
 
-    // /auth/forgot-password
+    // 3. /auth/forgot-password
     if (endpoint === '/auth/forgot-password') {
+      const email = (body.email || '').trim().toLowerCase();
+      if (!email) {
+        const err = new Error('Email is required.');
+        err.status = 400;
+        throw err;
+      }
+
+      const user = users.find(u => u.email.toLowerCase() === email);
+      const resetTokens = load(STORAGE_KEY_RESET_TOKENS, []);
+      let devResetToken = null;
+
+      if (user) {
+        devResetToken = 'rst_' + Math.random().toString(36).substring(2, 10);
+        resetTokens.push({
+          token: devResetToken,
+          userId: user.id,
+          expiresAt: Date.now() + 60 * 60 * 1000
+        });
+        save(STORAGE_KEY_RESET_TOKENS, resetTokens);
+      }
+
       return {
         success: true,
-        message: 'Password reset token generated.',
-        devResetToken: 'reset_token_' + Math.random().toString(36).substring(2, 9)
+        message: 'If an account with that email exists, a password reset token has been generated.',
+        devResetToken
       };
     }
 
-    // /auth/reset-password
+    // 4. /auth/reset-password
     if (endpoint === '/auth/reset-password') {
-      return { success: true, message: 'Password has been reset successfully.' };
+      const token = (body.token || '').trim();
+      const newPassword = body.newPassword || '';
+      const confirmPassword = body.confirmPassword || '';
+
+      if (!token || !newPassword) {
+        const err = new Error('Reset token and new password are required.');
+        err.status = 400;
+        throw err;
+      }
+
+      if (newPassword.length < 8) {
+        const err = new Error('Password must be at least 8 characters long.');
+        err.status = 400;
+        throw err;
+      }
+
+      if (newPassword !== confirmPassword) {
+        const err = new Error('Passwords do not match.');
+        err.status = 400;
+        throw err;
+      }
+
+      const resetTokens = load(STORAGE_KEY_RESET_TOKENS, []);
+      const tokenRecord = resetTokens.find(r => r.token === token && Date.now() <= r.expiresAt);
+
+      if (!tokenRecord) {
+        const err = new Error('Invalid or expired password reset token.');
+        err.status = 400;
+        throw err;
+      }
+
+      const userIndex = users.findIndex(u => u.id === tokenRecord.userId);
+      if (userIndex !== -1) {
+        users[userIndex].password = newPassword;
+        save(STORAGE_KEY_USERS, users);
+      }
+
+      // Remove used token
+      save(STORAGE_KEY_RESET_TOKENS, resetTokens.filter(r => r.token !== token));
+
+      return { success: true, message: 'Password has been successfully reset. You can now sign in.' };
     }
 
-    // /users/change-password
+    // Authenticated actions below
+    const user = requireAuth();
+    const categories = load(STORAGE_KEY_CATEGORIES, []);
+    const tags = load(STORAGE_KEY_TAGS, []);
+    const tasks = load(STORAGE_KEY_TASKS, []);
+
+    // 5. /users/change-password
     if (endpoint === '/users/change-password') {
+      const currentPassword = body.currentPassword || '';
+      const newPassword = body.newPassword || '';
+      const confirmPassword = body.confirmPassword || '';
+
+      const u = users.find(item => item.id === user.id);
+      if (!u || u.password !== currentPassword) {
+        const err = new Error('Current password is incorrect.');
+        err.status = 400;
+        throw err;
+      }
+
+      if (newPassword.length < 8) {
+        const err = new Error('New password must be at least 8 characters long.');
+        err.status = 400;
+        throw err;
+      }
+
+      if (newPassword !== confirmPassword) {
+        const err = new Error('New password confirmation does not match.');
+        err.status = 400;
+        throw err;
+      }
+
+      u.password = newPassword;
+      save(STORAGE_KEY_USERS, users);
       return { success: true, message: 'Password updated successfully.' };
     }
 
-    // /categories
+    // 6. /categories
     if (endpoint === '/categories') {
+      const name = (body.name || '').trim();
+      if (!name) {
+        const err = new Error('Category name is required.');
+        err.status = 400;
+        throw err;
+      }
+
+      if (categories.some(c => c.user_id === user.id && c.name.toLowerCase() === name.toLowerCase())) {
+        const err = new Error('A category with this name already exists.');
+        err.status = 409;
+        throw err;
+      }
+
       const newCat = {
         id: 'cat_' + Date.now(),
-        name: body.name.trim(),
+        user_id: user.id,
+        name,
         color: body.color || '#4f46e5',
         created_at: Date.now()
       };
       categories.push(newCat);
       save(STORAGE_KEY_CATEGORIES, categories);
-      return { success: true, message: 'Category created', category: newCat };
+      return { success: true, message: 'Category created.', category: newCat };
     }
 
-    // /tags
+    // 7. /tags
     if (endpoint === '/tags') {
+      const name = (body.name || '').trim().toLowerCase();
+      if (!name) {
+        const err = new Error('Tag name is required.');
+        err.status = 400;
+        throw err;
+      }
+
+      if (tags.some(t => t.user_id === user.id && t.name.toLowerCase() === name.toLowerCase())) {
+        const err = new Error('A tag with this name already exists.');
+        err.status = 409;
+        throw err;
+      }
+
       const newTag = {
         id: 'tag_' + Date.now(),
-        name: body.name.trim().toLowerCase(),
+        user_id: user.id,
+        name,
         created_at: Date.now()
       };
       tags.push(newTag);
       save(STORAGE_KEY_TAGS, tags);
-      return { success: true, message: 'Tag created', tag: newTag };
+      return { success: true, message: 'Tag created.', tag: newTag };
     }
 
-    // /todos
+    // 8. /todos
     if (endpoint === '/todos') {
-      const cat = categories.find(c => c.id === body.categoryId);
+      const title = (body.title || '').trim();
+      if (!title) {
+        const err = new Error('Task title is required.');
+        err.status = 400;
+        throw err;
+      }
+
+      const cat = categories.find(c => c.id === body.categoryId && c.user_id === user.id);
       const selectedTags = (body.tagIds || [])
-        .map(id => tags.find(t => t.id === id))
+        .map(id => tags.find(t => t.id === id && t.user_id === user.id))
         .filter(Boolean);
 
       const newTodo = {
         id: 'tdo_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
-        title: body.title.trim(),
+        user_id: user.id,
+        title,
         description: body.description ? body.description.trim() : '',
         priority: body.priority || 'medium',
         status: body.status || 'pending',
@@ -413,54 +639,68 @@ const API = (function () {
 
       tasks.unshift(newTodo);
       save(STORAGE_KEY_TASKS, tasks);
-      return { success: true, message: 'Task created', todo: newTodo };
+      return { success: true, message: 'Task created.', todo: newTodo };
     }
 
     return { success: true };
   }
 
   function handlePut(endpoint, body = {}) {
-    const categories = load(STORAGE_KEY_CATEGORIES, DEFAULT_CATEGORIES);
-    const tags = load(STORAGE_KEY_TAGS, DEFAULT_TAGS);
+    const user = requireAuth();
+    const users = load(STORAGE_KEY_USERS, []);
+    const categories = load(STORAGE_KEY_CATEGORIES, []);
+    const tags = load(STORAGE_KEY_TAGS, []);
     const tasks = load(STORAGE_KEY_TASKS, []);
 
     // /users/profile
     if (endpoint === '/users/profile') {
-      const user = load(STORAGE_KEY_USER, DEFAULT_USER);
-      user.name = body.name || user.name;
-      save(STORAGE_KEY_USER, user);
-      return { success: true, message: 'Profile updated', user };
+      const name = (body.name || '').trim();
+      if (!name || name.length < 2) {
+        const err = new Error('Name must be at least 2 characters long.');
+        err.status = 400;
+        throw err;
+      }
+
+      const uIdx = users.findIndex(u => u.id === user.id);
+      if (uIdx !== -1) {
+        users[uIdx].name = name;
+        save(STORAGE_KEY_USERS, users);
+      }
+
+      const updatedUser = { ...user, name };
+      save(STORAGE_KEY_CURRENT_USER, updatedUser);
+
+      return { success: true, message: 'Profile updated.', user: updatedUser };
     }
 
     // /categories/:id
     if (endpoint.startsWith('/categories/')) {
       const id = endpoint.split('/')[2];
-      const idx = categories.findIndex(c => c.id === id);
+      const idx = categories.findIndex(c => c.id === id && c.user_id === user.id);
       if (idx !== -1) {
-        if (body.name) categories[idx].name = body.name;
+        if (body.name) categories[idx].name = body.name.trim();
         if (body.color) categories[idx].color = body.color;
         save(STORAGE_KEY_CATEGORIES, categories);
 
-        // Update task category labels
         tasks.forEach(t => {
-          if (t.category_id === id) {
-            if (body.name) t.category_name = body.name;
+          if (t.category_id === id && t.user_id === user.id) {
+            if (body.name) t.category_name = body.name.trim();
             if (body.color) t.category_color = body.color;
           }
         });
         save(STORAGE_KEY_TASKS, tasks);
-        return { success: true, message: 'Category updated', category: categories[idx] };
+        return { success: true, message: 'Category updated.', category: categories[idx] };
       }
     }
 
     // /todos/:id
     if (endpoint.startsWith('/todos/')) {
       const id = endpoint.split('/')[2];
-      const idx = tasks.findIndex(t => t.id === id);
+      const idx = tasks.findIndex(t => t.id === id && t.user_id === user.id);
       if (idx !== -1) {
-        const cat = categories.find(c => c.id === body.categoryId);
+        const cat = categories.find(c => c.id === body.categoryId && c.user_id === user.id);
         const selectedTags = (body.tagIds || [])
-          .map(tid => tags.find(t => t.id === tid))
+          .map(tid => tags.find(t => t.id === tid && t.user_id === user.id))
           .filter(Boolean);
 
         const current = tasks[idx];
@@ -482,7 +722,7 @@ const API = (function () {
         };
 
         save(STORAGE_KEY_TASKS, tasks);
-        return { success: true, message: 'Task updated', todo: tasks[idx] };
+        return { success: true, message: 'Task updated.', todo: tasks[idx] };
       }
     }
 
@@ -490,12 +730,13 @@ const API = (function () {
   }
 
   function handlePatch(endpoint) {
+    const user = requireAuth();
     const tasks = load(STORAGE_KEY_TASKS, []);
 
     // /todos/:id/toggle
     if (endpoint.startsWith('/todos/') && endpoint.endsWith('/toggle')) {
       const id = endpoint.split('/')[2];
-      const task = tasks.find(t => t.id === id);
+      const task = tasks.find(t => t.id === id && t.user_id === user.id);
       if (task) {
         const isNowCompleted = task.status !== 'completed';
         task.status = isNowCompleted ? 'completed' : 'pending';
@@ -514,54 +755,54 @@ const API = (function () {
   }
 
   function handleDelete(endpoint) {
-    const categories = load(STORAGE_KEY_CATEGORIES, DEFAULT_CATEGORIES);
-    const tags = load(STORAGE_KEY_TAGS, DEFAULT_TAGS);
+    const user = requireAuth();
+    const categories = load(STORAGE_KEY_CATEGORIES, []);
+    const tags = load(STORAGE_KEY_TAGS, []);
     const tasks = load(STORAGE_KEY_TASKS, []);
 
     // /todos/:id
     if (endpoint.startsWith('/todos/')) {
       const id = endpoint.split('/')[2];
-      const filtered = tasks.filter(t => t.id !== id);
+      const filtered = tasks.filter(t => !(t.id === id && t.user_id === user.id));
       save(STORAGE_KEY_TASKS, filtered);
-      return { success: true, message: 'Task deleted' };
+      return { success: true, message: 'Task deleted.' };
     }
 
     // /categories/:id
     if (endpoint.startsWith('/categories/')) {
       const id = endpoint.split('/')[2];
-      const filtered = categories.filter(c => c.id !== id);
+      const filtered = categories.filter(c => !(c.id === id && c.user_id === user.id));
       save(STORAGE_KEY_CATEGORIES, filtered);
-      // Remove category from associated tasks
+      
       tasks.forEach(t => {
-        if (t.category_id === id) {
+        if (t.category_id === id && t.user_id === user.id) {
           t.category_id = null;
           t.category_name = null;
           t.category_color = null;
         }
       });
       save(STORAGE_KEY_TASKS, tasks);
-      return { success: true, message: 'Category deleted' };
+      return { success: true, message: 'Category deleted.' };
     }
 
     // /tags/:id
     if (endpoint.startsWith('/tags/')) {
       const id = endpoint.split('/')[2];
-      const filtered = tags.filter(t => t.id !== id);
+      const filtered = tags.filter(t => !(t.id === id && t.user_id === user.id));
       save(STORAGE_KEY_TAGS, filtered);
-      // Remove tag from tasks
+
       tasks.forEach(t => {
-        if (t.tags) {
+        if (t.user_id === user.id && t.tags) {
           t.tags = t.tags.filter(tg => tg.id !== id);
         }
       });
       save(STORAGE_KEY_TASKS, tasks);
-      return { success: true, message: 'Tag deleted' };
+      return { success: true, message: 'Tag deleted.' };
     }
 
     return { success: true };
   }
 
-  // Promise wrapper to maintain async API compatibility
   return {
     getToken,
     setToken,
