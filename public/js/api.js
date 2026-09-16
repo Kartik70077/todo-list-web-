@@ -4,147 +4,29 @@
  */
 
 const API = (function () {
-  const STORAGE_KEY_USERS = 'taskflow_users_db_v3';
-  const STORAGE_KEY_CURRENT_USER = 'taskflow_current_user_v3';
-  const STORAGE_KEY_TOKEN = 'taskflow_session_token_v3';
-  const STORAGE_KEY_TASKS = 'taskflow_tasks_v3';
-  const STORAGE_KEY_CATEGORIES = 'taskflow_categories_v3';
-  const STORAGE_KEY_TAGS = 'taskflow_tags_v3';
-  const STORAGE_KEY_RESET_TOKENS = 'taskflow_reset_tokens_v3';
-
-  // Demo User Seed (stored in users database)
-  const DEMO_USER = {
-    id: 'usr_demo_123',
-    name: 'Alex Morgan',
-    email: 'demo@taskflow.dev',
-    password: 'DemoPassword123!',
-    created_at: Date.now() - 30 * 86400000
-  };
-
-  const DEFAULT_CATEGORIES = [
-    { id: 'cat_1', user_id: 'usr_demo_123', name: 'Work', color: '#0284c7', created_at: Date.now() - 20 * 86400000 },
-    { id: 'cat_2', user_id: 'usr_demo_123', name: 'Personal', color: '#16a34a', created_at: Date.now() - 20 * 86400000 },
-    { id: 'cat_3', user_id: 'usr_demo_123', name: 'Study', color: '#7c3aed', created_at: Date.now() - 20 * 86400000 },
-    { id: 'cat_4', user_id: 'usr_demo_123', name: 'Health', color: '#db2777', created_at: Date.now() - 20 * 86400000 },
-    { id: 'cat_5', user_id: 'usr_demo_123', name: 'Shopping', color: '#ea580c', created_at: Date.now() - 20 * 86400000 }
+  // Purge any legacy sessions across all devices
+  const LEGACY_KEYS = [
+    'taskflow_auth_token',
+    'taskflow_pro_token_v2',
+    'taskflow_pro_user_v2',
+    'taskflow_session_token_v3',
+    'taskflow_current_user_v3',
+    'taskflow_todos_v1'
   ];
+  try {
+    LEGACY_KEYS.forEach(k => localStorage.removeItem(k));
+  } catch (e) {}
 
-  const DEFAULT_TAGS = [
-    { id: 'tag_1', user_id: 'usr_demo_123', name: 'urgent', created_at: Date.now() - 20 * 86400000 },
-    { id: 'tag_2', user_id: 'usr_demo_123', name: 'client', created_at: Date.now() - 20 * 86400000 },
-    { id: 'tag_3', user_id: 'usr_demo_123', name: 'project', created_at: Date.now() - 20 * 86400000 },
-    { id: 'tag_4', user_id: 'usr_demo_123', name: 'bug', created_at: Date.now() - 20 * 86400000 },
-    { id: 'tag_5', user_id: 'usr_demo_123', name: 'routine', created_at: Date.now() - 20 * 86400000 }
-  ];
+  const STORAGE_KEY_USERS = 'taskflow_users_db_v4';
+  const STORAGE_KEY_CURRENT_USER = 'taskflow_current_user_v4';
+  const STORAGE_KEY_TOKEN = 'taskflow_session_token_v4';
+  const STORAGE_KEY_TASKS = 'taskflow_tasks_v4';
+  const STORAGE_KEY_CATEGORIES = 'taskflow_categories_v4';
+  const STORAGE_KEY_TAGS = 'taskflow_tags_v4';
+  const STORAGE_KEY_RESET_TOKENS = 'taskflow_reset_tokens_v4';
 
   function getFormatYMD(d) {
     return d.toISOString().split('T')[0];
-  }
-
-  function getInitialDemoTasks(userId) {
-    const today = new Date();
-    const yesterday = new Date(today.getTime() - 86400000);
-    const tomorrow = new Date(today.getTime() + 86400000);
-    const in4Days = new Date(today.getTime() + 4 * 86400000);
-
-    return [
-      {
-        id: 'tdo_1',
-        user_id: userId,
-        title: 'Review executive presentation slides and system roadmap',
-        description: 'Prepare talking points on quarterly infrastructure scaling.',
-        status: 'pending',
-        priority: 'high',
-        due_date: getFormatYMD(today),
-        category_id: 'cat_1',
-        category_name: 'Work',
-        category_color: '#0284c7',
-        tags: [{ id: 'tag_1', name: 'urgent' }, { id: 'tag_3', name: 'project' }],
-        completed_at: null,
-        created_at: Date.now() - 3600000,
-        updated_at: Date.now() - 3600000
-      },
-      {
-        id: 'tdo_2',
-        user_id: userId,
-        title: 'Fix responsive navigation layout on mobile viewports',
-        description: 'Ensure touch targets and dropdown menus collapse smoothly.',
-        status: 'in_progress',
-        priority: 'high',
-        due_date: getFormatYMD(today),
-        category_id: 'cat_1',
-        category_name: 'Work',
-        category_color: '#0284c7',
-        tags: [{ id: 'tag_1', name: 'urgent' }, { id: 'tag_4', name: 'bug' }],
-        completed_at: null,
-        created_at: Date.now() - 7200000,
-        updated_at: Date.now() - 7200000
-      },
-      {
-        id: 'tdo_3',
-        user_id: userId,
-        title: 'Submit quarterly health insurance receipts',
-        description: 'Upload pharmacy claim receipts to portal.',
-        status: 'pending',
-        priority: 'medium',
-        due_date: getFormatYMD(yesterday), // Overdue
-        category_id: 'cat_4',
-        category_name: 'Health',
-        category_color: '#db2777',
-        tags: [{ id: 'tag_5', name: 'routine' }],
-        completed_at: null,
-        created_at: Date.now() - 86400000,
-        updated_at: Date.now() - 86400000
-      },
-      {
-        id: 'tdo_4',
-        user_id: userId,
-        title: 'Complete Chapter 4 of System Design Architecture',
-        description: 'Focus on distributed consensus, Raft, and data replication.',
-        status: 'in_progress',
-        priority: 'medium',
-        due_date: getFormatYMD(tomorrow),
-        category_id: 'cat_3',
-        category_name: 'Study',
-        category_color: '#7c3aed',
-        tags: [{ id: 'tag_3', name: 'project' }],
-        completed_at: null,
-        created_at: Date.now() - 14400000,
-        updated_at: Date.now() - 14400000
-      },
-      {
-        id: 'tdo_5',
-        user_id: userId,
-        title: 'Buy groceries: espresso beans, almond milk, organic oats',
-        description: 'Stop by local market on Saturday.',
-        status: 'pending',
-        priority: 'low',
-        due_date: getFormatYMD(in4Days),
-        category_id: 'cat_5',
-        category_name: 'Shopping',
-        category_color: '#ea580c',
-        tags: [{ id: 'tag_5', name: 'routine' }],
-        completed_at: null,
-        created_at: Date.now() - 28800000,
-        updated_at: Date.now() - 28800000
-      },
-      {
-        id: 'tdo_6',
-        user_id: userId,
-        title: 'Setup automated CI/CD pipeline and static deployment',
-        description: 'Configured automated tests and deployment workflow.',
-        status: 'completed',
-        priority: 'high',
-        due_date: getFormatYMD(yesterday),
-        category_id: 'cat_1',
-        category_name: 'Work',
-        category_color: '#0284c7',
-        tags: [{ id: 'tag_3', name: 'project' }],
-        completed_at: Date.now() - 3600000,
-        created_at: Date.now() - 86400000,
-        updated_at: Date.now() - 3600000
-      }
-    ];
   }
 
   // Storage Helpers
@@ -165,16 +47,12 @@ const API = (function () {
     }
   }
 
-  // Initialize users database with Demo user if empty
-  const existingUsers = load(STORAGE_KEY_USERS, null);
-  if (!existingUsers || existingUsers.length === 0) {
-    save(STORAGE_KEY_USERS, [DEMO_USER]);
-    save(STORAGE_KEY_CATEGORIES, DEFAULT_CATEGORIES);
-    save(STORAGE_KEY_TAGS, DEFAULT_TAGS);
-    save(STORAGE_KEY_TASKS, getInitialDemoTasks(DEMO_USER.id));
+  // Initialize empty users store if not existing
+  if (!localStorage.getItem(STORAGE_KEY_USERS)) {
+    save(STORAGE_KEY_USERS, []);
   }
 
-  // Session Token management (Starts empty for fresh visitors!)
+  // Session Token management (Starts empty - NO auto login!)
   function getToken() {
     return localStorage.getItem(STORAGE_KEY_TOKEN);
   }
@@ -343,7 +221,7 @@ const API = (function () {
   }
 
   function handlePost(endpoint, body = {}) {
-    const users = load(STORAGE_KEY_USERS, [DEMO_USER]);
+    const users = load(STORAGE_KEY_USERS, []);
 
     // 1. /auth/login with strict validation
     if (endpoint === '/auth/login') {
